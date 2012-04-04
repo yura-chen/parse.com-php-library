@@ -17,7 +17,7 @@ class parseRestClient{
 			$this->restkey = $config['restkey'];			
 		}
 		else{
-			die('You must include your Application Id and Master Key');
+			die('You must include your Application Id and REST Key');
 		}
 	}
 
@@ -49,6 +49,9 @@ class parseRestClient{
 			if(isset($args['query'])){
 				$postData['where'] = json_encode( $args['query'] );
 			}
+			if(isset($args['include'])){
+				$postData['include'] = $args['include'];
+			}
 			if(isset($args['order'])){
 				$postData['order'] = $args['order'];
 			}
@@ -69,6 +72,9 @@ class parseRestClient{
 		$httpCode = curl_getinfo($c, CURLINFO_HTTP_CODE);
 		
 		return array('code'=>$httpCode, 'response'=>$response);
+		
+		
+		
 	}
 
 	
@@ -141,7 +147,8 @@ class parseRestClient{
  * order: (optional) used to sort by the field name. use a minus (-) before field name to reverse sort
  * limit: (optional) limit number of results
  * skip:  (optional) used to paginate results
- * 
+ * include: (optional) return multiple types of related objects in one query See: http://parse.com/docs/rest#queries-relational 
+ *
  * @return string $return
  * 
  */
@@ -154,6 +161,9 @@ class parseRestClient{
 
 		if(isset($args['query'])){
 			$params['query'] = $args['query'];
+		}
+		if(isset($args['include'])){
+			$params['include'] = $args['include'];
 		}
 		if(isset($args['order'])){
 			$params['order'] = $args['order'];
