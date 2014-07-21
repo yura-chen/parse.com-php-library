@@ -1,5 +1,5 @@
 <?
-class parseRestClient{
+class Parse_Client{
 	
 	private $appid = '';
 	private $restkey = '';
