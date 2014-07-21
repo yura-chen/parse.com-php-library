@@ -4,6 +4,7 @@ class Parse_Client{
 	private $appid = '';
 	private $restkey = '';
 	private $parseUrl = 'https://api.parse.com/1/classes/';
+	private $pushUrl = 'https://api.parse.com/1/';
 
 
 /**
@@ -17,7 +18,7 @@ class Parse_Client{
 			$this->restkey = $config['restkey'];			
 		}
 		else{
-			die('You must include your Application Id and REST Key');
+			die('You must include your Application Id and Master Key');
 		}
 	}
 
@@ -38,8 +39,13 @@ class Parse_Client{
 			'X-Parse-REST-API-Key: '.$this->restkey
 		));
 		curl_setopt($c, CURLOPT_CUSTOMREQUEST, $args['method']);
+
+		if($args['url'] == "push") {
+		curl_setopt($c, CURLOPT_URL, $this->pushUrl . $args['url']);
+		} else {
 		curl_setopt($c, CURLOPT_URL, $this->parseUrl . $args['url']);
-		
+		}
+
 		if($args['method'] == 'PUT' || $args['method'] == "POST"){
 			$postData = json_encode($args['payload']);
 			curl_setopt($c, CURLOPT_POSTFIELDS, $postData );
@@ -48,9 +54,6 @@ class Parse_Client{
 			$postData = array();
 			if(isset($args['query'])){
 				$postData['where'] = json_encode( $args['query'] );
-			}
-			if(isset($args['include'])){
-				$postData['include'] = $args['include'];
 			}
 			if(isset($args['order'])){
 				$postData['order'] = $args['order'];
@@ -65,31 +68,63 @@ class Parse_Client{
 				$query = http_build_query($postData, '', '&');
 				curl_setopt($c, CURLOPT_URL, $this->parseUrl . $args['url'].'?'.$query);
 			}
-							
+
 		}
 
 		$response = curl_exec($c);
 		$httpCode = curl_getinfo($c, CURLINFO_HTTP_CODE);
-		
+
 		return array('code'=>$httpCode, 'response'=>$response);
-		
-		
-		
 	}
 
-	
+	/*
+ * Used to create a parse.com object  
+ * 
+ * @param array $args - argument hash:
+ * 
+ * className: string of className
+ * object: object to create
+ * 
+ * @return string $return
+ * 
+ */
 	public function create($args){
 		$params = array(
 			'url' => $args['className'],
 			'method' => 'POST',
 			'payload' => $args['object']
 		);
-		
+
 		$return = $this->request($params);
 
 		return $this->checkResponse($return,'201');
-		
+
 	}	
+
+	/*
+ * Used to send a push notification  
+ * 
+ * @param array $args - argument hash:
+ * 
+ * push: leave this alone
+ * object: notification details
+ * 
+ * @return string $return
+ * 
+ */
+	public function notification($args){
+		$params = array(
+			'url' => 'push',
+			'method' => 'POST',
+			'payload' => $args['object']
+		);
+
+		$return = $this->request($params);
+
+		return $this->checkResponse($return,'200');
+
+	}	
+
 
 /*
  * Used to get a parse.com object  
@@ -107,9 +142,9 @@ class Parse_Client{
 			'url' => $args['className'].'/'.$args['objectId'],
 			'method' => 'GET'
 		);
-		
+
 		$return = $this->request($params);
-		
+
 		return $this->checkResponse($return,'200');
 	}	
 
@@ -131,9 +166,9 @@ class Parse_Client{
 			'method' => 'PUT',
 			'payload' => $args['object']
 		);
-		
+
 		$return = $this->request($params);
-		
+
 		return $this->checkResponse($return,'200');
 	}
 
@@ -147,8 +182,7 @@ class Parse_Client{
  * order: (optional) used to sort by the field name. use a minus (-) before field name to reverse sort
  * limit: (optional) limit number of results
  * skip:  (optional) used to paginate results
- * include: (optional) return multiple types of related objects in one query See: http://parse.com/docs/rest#queries-relational 
- *
+ * 
  * @return string $return
  * 
  */
@@ -162,9 +196,6 @@ class Parse_Client{
 		if(isset($args['query'])){
 			$params['query'] = $args['query'];
 		}
-		if(isset($args['include'])){
-			$params['include'] = $args['include'];
-		}
 		if(isset($args['order'])){
 			$params['order'] = $args['order'];
 		}
@@ -174,11 +205,11 @@ class Parse_Client{
 		if(isset($args['skip'])){
 			$params['skip'] = $args['skip'];
 		}
-		
+
 		$return = $this->request($params);
-		
+
 		return $this->checkResponse($return,'200');
-		
+
 	}
 
 /*
@@ -197,9 +228,9 @@ class Parse_Client{
 			'url' => $args['className'].'/'.$args['objectId'],
 			'method' => 'DELETE'
 		);
-		
+
 		$return = $this->request($params);
-		
+
 		return $this->checkResponse($return,'200');
 	}	
 
