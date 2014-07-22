@@ -28,6 +28,25 @@ $parse = new parseRestClient(array(
 	'restkey' => 'YOUR REST KEY ID'
 ));
 ```
+  
+NOTIFICATION EXAMPLE
+----------------
+
+```
+$params = array(
+  'object' => array(
+    'channel' => 'Andrew Scofield',
+    'data' => array(
+      'alert' => 'Joey Votto makes another home run!',
+      'sound' => 'default',
+      'badge' => 0,
+      'type'  => 'score',
+    )
+  )
+);
+
+$request = $parse->notification($params);
+```
 
 CREATE EXAMPLE
 ----------------

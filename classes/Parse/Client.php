@@ -18,7 +18,7 @@ class Parse_Client{
 			$this->restkey = $config['restkey'];			
 		}
 		else{
-			die('You must include your Application Id and Master Key');
+			throw new Exception('You must include your Application Id and Master Key');
 		}
 	}
 
@@ -247,7 +247,7 @@ class Parse_Client{
 		//TODO: Need to also check for response for a correct result from parse.com
 		if($return['code'] != $code){
 			$error = json_decode($return['response']);
-			die('ERROR: response code was '.$return['code'].' with message: '.$error->error);
+			throw new Exception('ERROR: response code was '.$return['code'].' with message: '.$error->error);
 		}
 		else{
 			return $return['response'];
